@@ -2,6 +2,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/ioctl.h>
 #include <unistd.h>
 #include <termios.h>
 
@@ -9,28 +10,36 @@
 #define CTRL_KEY(k) ((k) & 0x1f)
 
 /* data */
-struct termios term;
+struct editorConfig {
+    int rows;
+    int columns;
+    struct termios term;
+};
+
+struct editorConfig E;
 
 /* terminal */
 
-void die(const char *s) {
+void die(const char *s) { 
+    write(STDOUT_FILENO, "\x1b[2J", 4);
+    write(STDOUT_FILENO, "\x1b[H", 3);
     perror(s);
     exit(1);
 }
 
 void disableRawMode() {
-    if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &term) == -1) {
+    if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &E.term) == -1) {
         die("tcsetattr");
     }    
 }
 
 void enableRawMode() {
-    if (tcgetattr(STDIN_FILENO, &term) == -1) {
+    if (tcgetattr(STDIN_FILENO, &E.term) == -1) {
         die("tcgetattr");
     }
     atexit(disableRawMode);
 
-    struct termios raw = term;
+    struct termios raw = E.term;
     raw.c_iflag &= ~(BRKINT | ICRNL | INPCK | ISTRIP | IXON);
     raw.c_oflag &= ~(OPOST);
     raw.c_cflag |= (CS8);
@@ -54,13 +63,36 @@ char editorReadKey() {
     return c;
 }
 
+int getWindowSize(int *rows, int *columns) {
+    struct winsize ws;
+
+    if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == -1 || ws.ws_col == 0) {
+        return -1;
+    } else {
+        *columns = ws.ws_col;
+        *rows = ws.ws_row;
+        return 0;
+    }
+}
+
 /* output */
+
+void editorDrawRows() {
+    int y;
+    for (y = 0; y < E.rows; ++y) {
+        write(STDOUT_FILENO, "~\r\n", 3);
+    }
+}
 
 // escape character is "\x1b"
 // "[2J" clears entire screen
 // "[H" positions the cursor
 void editorRefreshScreen() {
     write(STDOUT_FILENO, "\x1b[2J", 4); // escape character \x1b
+    write(STDOUT_FILENO, "\x1b[H", 3);
+
+    editorDrawRows();
+
     write(STDOUT_FILENO, "\x1b[H", 3);
 }
 
@@ -70,6 +102,8 @@ void editorProcessKeypress() {
     char c = editorReadKey();
     switch (c) {
         case CTRL_KEY('q'):
+            write(STDOUT_FILENO, "\x1b[2J", 4);
+            write(STDOUT_FILENO, "\x1b[H", 3);
             exit(0);
             break;
     }
@@ -78,8 +112,17 @@ void editorProcessKeypress() {
 
 /* init */
 
+void initEditor() {
+    if (getWindowSize(&E.rows, &E.columns) == -1) {
+        die("getWindowSize");
+    }
+}
+
 int main(void) {
     enableRawMode();
+    initEditor();
+
+
     while (1) {
         editorRefreshScreen();
         editorProcessKeypress();
