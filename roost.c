@@ -1,3 +1,4 @@
+/* Step 72 */
 #define _DEFAULT_SOURCE
 #define _BSD_SOURCE
 #define _GNU_SOURCE
@@ -38,6 +39,7 @@ typedef struct erow {
 struct editorConfig {
     int cx, cy;
     int rowoff;
+    int coloff;
     int rows;
     int columns;
     int numrows;
@@ -255,6 +257,16 @@ void abFree(struct abuf *ab) {
 
 /* output */
 
+void editorScroll() {
+    if (E.cy < E.rowoff) {
+        E.rowoff = E.cy;
+    }
+    if (E.cy >= E.rowoff + E.rows) {
+        E.rowoff = E.cy - E.rows + 1;
+    }
+
+}
+
 void editorDrawRows(struct abuf *ab) {
     int y;
     for (y = 0; y < E.rows; ++y) {
@@ -297,6 +309,8 @@ void editorDrawRows(struct abuf *ab) {
 // "[2J" clears entire screen
 // "[H" positions the cursor
 void editorRefreshScreen() {
+    editorScroll();
+
     struct abuf ab = ABUF_INIT;
 
     abAppend(&ab, "\x1b[?25l", 6);
@@ -305,7 +319,7 @@ void editorRefreshScreen() {
     editorDrawRows(&ab);
 
     char buf[32];
-    snprintf(buf, sizeof(buf), "\x1b[%d;%dH", E.cy + 1, E.cx + 1);
+    snprintf(buf, sizeof(buf), "\x1b[%d;%dH", (E.cy - E.rowoff) + 1, E.cx + 1);
     abAppend(&ab, buf, strlen(buf));
 
     abAppend(&ab, "\x1b[?25h", 6);
@@ -333,7 +347,7 @@ void editorMoveCursor(int key) {
             }
             break;
         case ARROW_DOWN:
-            if (E.cy != (E.rows - 1)) {
+            if (E.cy != E.numrows) {
                 E.cy++;
             }
             break;
@@ -379,6 +393,7 @@ void initEditor() {
     E.cx = 0;
     E.cy = 0;
     E.rowoff = 0;
+    E.coloff = 0;
     E.numrows = 0;
     E.row = NULL;
 
