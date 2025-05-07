@@ -1,2 +1,2 @@
 # Roost Text Editor
-## Still currently in development!
+## Currently in development!
