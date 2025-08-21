@@ -1,7 +1,7 @@
 CC      := gcc
 CFLAGS  := -Wall -Wextra -pedantic -std=c99
 TARGET  := roost
-SRC     := roost.c
+SRC     := roost.c filetypes.c
 OBJ     := $(SRC:.c=.o)
 
 

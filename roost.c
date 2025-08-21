@@ -1,4 +1,3 @@
-/* Step 151 */
 #define _DEFAULT_SOURCE
 #define _BSD_SOURCE
 #define _GNU_SOURCE
@@ -16,103 +15,10 @@
 #include <unistd.h>
 #include <termios.h>
 
-/* defines */
-#define CTRL_KEY(k) ((k) & 0x1f)
-
-enum editorKey {
-    BACKSPACE = 127,
-    ARROW_LEFT = 1000,
-    ARROW_RIGHT,
-    ARROW_UP,
-    ARROW_DOWN,
-    DEL_KEY,
-    HOME_KEY,
-    END_KEY,
-    PAGE_UP,
-    PAGE_DOWN
-};
-
-enum editorHighlight {
-    HL_NORMAL = 0,
-    HL_COMMENT,
-    HL_MLCOMMENT,
-    HL_KEYWORD1,
-    HL_KEYWORD2,
-    HL_STRING,
-    HL_NUMBER,
-    HL_MATCH
-};
-
-#define ROOST_VERSION "0.0.1"
-#define KILO_TAB_STOP 8
-#define ROOST_QUIT_TIMES 3
-
-#define HL_HIGHLIGHT_NUMBERS (1<<0)
-#define HL_HIGHLIGHT_STRINGS (1<<1)
-
-/* data */
-
-struct editorSyntax {
-    char *filetype;
-    char **filematch;
-    char **keywords;
-    char *singleline_comment_start;
-    char *multiline_comment_start;
-    char *multiline_comment_end;
-    int flags;
-};
-
-typedef struct erow {
-    int idx;
-    int size;
-    int rsize;
-    char *chars;
-    char *render;
-    unsigned char *hl;
-    int hl_open_comment;
-} erow;
-
-struct editorConfig {
-    int cx, cy;
-    int rx;
-    int rowoff;
-    int coloff;
-    int rows;
-    int columns;
-    int numrows;
-    erow *row;
-    int dirty;
-    char *filename;
-    char statusmsg[80];
-    time_t statusmsg_time;
-    struct editorSyntax *syntax;
-    struct termios term;
-};
+#include "data.h"
+#include "filetypes.h"
 
 struct editorConfig E;
-
-/* Filetypes */
-
-char *C_HL_extensions[] = { ".c", ".h", ".cpp", NULL };
-char *C_HL_keywords[] = {
-  "switch", "if", "while", "for", "break", "continue", "return", "else",
-  "struct", "union", "typedef", "static", "enum", "class", "case",
-  "int|", "long|", "double|", "float|", "char|", "unsigned|", "signed|",
-  "void|", NULL
-};
-struct editorSyntax HLDB[] = {
-    {
-        "c",
-        C_HL_extensions,
-        C_HL_keywords,
-        "//", "/*", "*/",
-        HL_HIGHLIGHT_NUMBERS | HL_HIGHLIGHT_STRINGS
-    },
-};
-
-#define HLDB_ENTRIES (sizeof(HLDB) / sizeof(HLDB[0]))
-
-/*** prototypes ***/
 
 void editorSetStatusMessage(const char *fmt, ...); 
 void editorRefreshScreen();
@@ -441,7 +347,7 @@ int editorRowCxToRx(erow *row, int cx) {
     int j;
     for (j = 0; j < cx; j++) {
         if (row->chars[j] == '\t'){
-            rx += (KILO_TAB_STOP - 1) - (rx % KILO_TAB_STOP);
+            rx += (ROOST_TAB_STOP - 1) - (rx % ROOST_TAB_STOP);
         }
         rx++;
     }
@@ -453,7 +359,7 @@ int editorRowRxToCx(erow *row, int rx) {
     int cx;
     for (cx = 0; cx < row->size; cx++) {
         if (row->chars[cx] == '\t') {
-            cur_rx += (KILO_TAB_STOP - 1) - (cur_rx % KILO_TAB_STOP);
+            cur_rx += (ROOST_TAB_STOP - 1) - (cur_rx % ROOST_TAB_STOP);
         }
         cur_rx++;
         if (cur_rx > rx) {
@@ -474,7 +380,7 @@ void editorUpdateRow(erow *row) {
 
     int idx = 0;
     free(row->render);
-    row->render = malloc(row->size + tabs*(KILO_TAB_STOP - 1) + 1);
+    row->render = malloc(row->size + tabs*(ROOST_TAB_STOP - 1) + 1);
     
     for (j = 0; j < row->size; j++) {
         if (row->chars[j] == '\t') {
