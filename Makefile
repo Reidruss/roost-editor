@@ -1,21 +1,26 @@
 CC      := gcc
-CFLAGS  := -Wall -Wextra -pedantic -std=c99
+CFLAGS  := -Wall -Wextra -Werror -pedantic -std=c99 -Iinclude -Isrc -g
+
+
 TARGET  := roost
-SRC     := roost.c filetypes.c
-OBJ     := $(SRC:.c=.o)
+SRC     := src/roost.c src/filetypes.c
+OBJDIR  := objs
+OBJS 	:= $(SRC:src/%.c=$(OBJDIR)/%.o)
 
 
 all: $(TARGET)
 
-$(TARGET): $(OBJ)
-	$(CC) $(CFLAGS) $(OBJ) -o $@
+$(TARGET): $(OBJS)
+	$(CC) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
 
-%.o: %.c
+$(OBJDIR)/%.o: src/%.c | $(OBJDIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
+$(OBJDIR):
+	mkdir -p $(OBJDIR)
+
 clean:
-	rm -f $(OBJ) $(TARGET)
+	rm -f $(OBJS) $(TARGET)
+	rm -rf $(OBJDIR)
 
 .PHONY: all clean
-
-
