@@ -1,3 +1,8 @@
+/**
+ * file_io.h
+ * Header file for file I/O operations.
+ */
+
 #ifndef FILE_IO_H
 #define FILE_IO_H
 

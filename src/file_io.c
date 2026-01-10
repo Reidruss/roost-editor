@@ -1,3 +1,8 @@
+/**
+ * file_io.c
+ * File I/O operations for opening, reading, and saving files.
+ */
+
 #define _DEFAULT_SOURCE
 #define _BSD_SOURCE
 #define _GNU_SOURCE
@@ -17,16 +22,19 @@
 #include "input.h"
 #include "terminal.h"
 
-char *editorRowsToString(int *buflen) {
+char *editorRowsToString(int *buflen)
+{
     int totlen = 0;
     int j;
-    for (j = 0; j < E.numrows; j++) {
+    for (j = 0; j < E.numrows; j++)
+    {
         totlen += E.row[j].size + 1;
     }
     *buflen = totlen;
     char *buf = malloc(totlen);
     char *p = buf;
-    for (j = 0; j < E.numrows; j++) {
+    for (j = 0; j < E.numrows; j++)
+    {
         memcpy(p, E.row[j].chars, E.row[j].size);
         p += E.row[j].size;
         *p = '\n';
@@ -36,7 +44,8 @@ char *editorRowsToString(int *buflen) {
 }
 
 
-void editorOpen(char *filename) {
+void editorOpen(char *filename)
+{
     free(E.filename);
     E.filename = strdup(filename);
 
@@ -50,7 +59,8 @@ void editorOpen(char *filename) {
     char *line = NULL;
     size_t linecap = 0;
     ssize_t linelen;
-    while ((linelen = getline(&line, &linecap, fp)) != -1) {
+    while ((linelen = getline(&line, &linecap, fp)) != -1)
+    {
         while (linelen > 0 && (line[linelen - 1] == '\n' ||
                                line[linelen - 1] == '\r')) {
             linelen--;
@@ -62,7 +72,8 @@ void editorOpen(char *filename) {
     E.dirty = 0;
 }
 
-void editorSave() {
+void editorSave()
+{
     if (E.filename == NULL) {
         E.filename = editorPrompt("Save as: %s (ESC to cancel)", NULL);
         if (E.filename == NULL) {

@@ -1,3 +1,8 @@
+/**
+ * terminal.h
+ * Header file for terminal manipulation functions.
+ */
+
 #ifndef TERMINAL_H
 #define TERMINAL_H
 

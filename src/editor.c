@@ -1,19 +1,30 @@
+/**
+ * editor.c
+ * High-level editor operations such as inserting and deleting characters and newlines.
+ */
+
 #include "data.h"
 #include "editor.h"
 #include "row.h"
 
-void editorInsertChar(int c) {
-    if (E.cy == E.numrows) {
+void editorInsertChar(int c)
+{
+    if (E.cy == E.numrows)
+    {
         editorInsertRow(E.numrows, "", 0);
     }
     editorRowInsertChar(&E.row[E.cy], E.cx, c);
     E.cx++;
 }
 
-void editorInsertNewline() {
-    if (E.cx == 0) {
+void editorInsertNewline()
+{
+    if (E.cx == 0)
+    {
         editorInsertRow(E.cy, "", 0);
-    } else {
+    }
+    else
+    {
         erow *row = &E.row[E.cy];
         editorInsertRow(E.cy + 1, &row->chars[E.cx], row->size - E.cx);
         row = &E.row[E.cy];
@@ -25,18 +36,24 @@ void editorInsertNewline() {
     E.cx = 0;
 }
 
-void editorDelChar() {
-    if (E.cy == E.numrows) {
+void editorDelChar()
+{
+    if (E.cy == E.numrows)
+    {
         return;
     }
-    if (E.cx == 0 && E.cy == 0) {
+    if (E.cx == 0 && E.cy == 0)
+    {
         return;
     }
     erow *row = &E.row[E.cy];
-    if (E.cx > 0) {
+    if (E.cx > 0)
+    {
         editorRowDelChar(row, E.cx - 1);
         E.cx--;
-    } else {
+    }
+    else
+    {
         E.cx = E.row[E.cy - 1].size;
         editorRowAppendString(&E.row[E.cy - 1], row->chars, row->size);
         editorDelRow(E.cy);

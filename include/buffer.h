@@ -1,7 +1,13 @@
+/**
+ * buffer.h
+ * Header file for dynamic string buffer implementation.
+ */
+
 #ifndef BUFFER_H
 #define BUFFER_H
 
-struct abuf {
+struct abuf
+{
     char *b;
     int len;
 };

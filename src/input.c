@@ -1,3 +1,8 @@
+/**
+ * input.c
+ * Input handling, including key processing and cursor movement.
+ */
+
 #include <stdlib.h>
 #include <ctype.h>
 #include <unistd.h>
@@ -10,77 +15,102 @@
 #include "find.h"
 #include "editor.h"
 
-char *editorPrompt(char *prompt, void (*callback)(char *, int)) {
+char *editorPrompt(char *prompt, void (*callback)(char *, int))
+{
     size_t bufsize = 128;
     char *buf = malloc(bufsize);
     size_t buflen = 0;
     buf[0] = '\0';
-    while (1) {
+    while (1)
+    {
         editorSetStatusMessage(prompt, buf);
         editorRefreshScreen();
 
         int c = editorReadKey();
 
-        if (c == DEL_KEY || c == CTRL_KEY('h') || c == BACKSPACE) {
-            if (buflen != 0) {
+        if (c == DEL_KEY || c == CTRL_KEY('h') || c == BACKSPACE)
+        {
+            if (buflen != 0)
+            {
                 buf[--buflen] = '\0';
             }
-        } else if (c == '\x1b') {
+        }
+        else if (c == '\x1b')
+        {
             editorSetStatusMessage("");
-            if (callback) {
+            if (callback)
+            {
                 callback(buf, c);
             }
             free(buf);
             return NULL;
-        } else if (c == '\r') {
-            if (buflen != 0) {
+        }
+        else if (c == '\r')
+        {
+            if (buflen != 0)
+            {
                 editorSetStatusMessage("");
-                if (callback) {
+                if (callback)
+                {
                     callback(buf, c);
                 }
                 return buf;
             }
-        } else if (!iscntrl(c) && c < 128) {
-            if (buflen == bufsize - 1) {
+        }
+        else if (!iscntrl(c) && c < 128)
+        {
+            if (buflen == bufsize - 1)
+            {
                 bufsize *= 2;
                 buf = realloc(buf, bufsize);
             }
             buf[buflen++] = c;
             buf[buflen] = '\0';
         }
-        if (callback) {
+        if (callback)
+        {
             callback(buf, c);
         }
     }
 }
 
-void editorMoveCursor(int key) {
+void editorMoveCursor(int key)
+{
     erow *row = (E.cy >= E.numrows) ? NULL : &E.row[E.cy];
 
-    switch (key) {
+    switch (key)
+    {
         case ARROW_LEFT:
-            if (E.cx != 0) {
+            if (E.cx != 0)
+            {
                 E.cx--;
-            } else if (E.cy > 0) {
+            }
+            else if (E.cy > 0)
+            {
                 E.cy--;
                 E.cx = E.row[E.cy].size;
             }
             break;
         case ARROW_RIGHT:
-            if (row && E.cx < row->size) {
+            if (row && E.cx < row->size)
+            {
                 E.cx++;
-            } else if (row && E.cx == row->size) {
+            }
+            else if (row && E.cx == row->size)
+            {
                 E.cy++;
                 E.cx = 0;
             }
             break;
         case ARROW_UP:
-            if (E.cy != 0) {
+            if (E.cy != 0)
+            {
                 E.cy--;
             }
             break;
         case ARROW_DOWN:
-            if (E.cy != E.numrows) {
+            if (E.cy != E.numrows)
+            {
                 E.cy++;
             }
             break;
@@ -88,22 +118,26 @@ void editorMoveCursor(int key) {
 
     row = (E.cy >= E.numrows) ? NULL : &E.row[E.cy];
     int rowlen = row ? row->size : 0;
-    if (E.cx > rowlen) {
+    if (E.cx > rowlen)
+    {
         E.cx = rowlen;
     }
 }
 
-void editorProcessKeypress() {
+void editorProcessKeypress()
+{
     static int quit_times = ROOST_QUIT_TIMES;
 
     int c = editorReadKey();
-    switch (c) {
+    switch (c)
+    {
         case '\r':
             editorInsertNewline();
             break;
 
         case CTRL_KEY('q'):
-            if (E.dirty && quit_times > 0) {
+            if (E.dirty && quit_times > 0)
+            {
                 editorSetStatusMessage("WARNING!!! File has unsaved changes. "
                                        "Press Ctrl-Q %d more times to quit.", quit_times);
                 quit_times--;
@@ -121,7 +155,8 @@ void editorProcessKeypress() {
             E.cx = 0;
             break;
         case END_KEY:
-            if (E.cy < E.numrows) {
+            if (E.cy < E.numrows)
+            {
                 E.cx = E.row[E.cy].size;
             }
             break;
@@ -130,7 +165,8 @@ void editorProcessKeypress() {
             editorFind();
             break;
         case BACKSPACE:
-            if (c == DEL_KEY) {
+            if (c == DEL_KEY)
+            {
                 editorMoveCursor(ARROW_RIGHT);
             }
             editorDelChar();
@@ -141,16 +177,21 @@ void editorProcessKeypress() {
         case PAGE_UP:
         case PAGE_DOWN:
             {
-                if (c == PAGE_UP) {
+                if (c == PAGE_UP)
+                {
                     E.cy = E.rowoff;
-                } else if (c == PAGE_DOWN) {
+                }
+                else if (c == PAGE_DOWN)
+                {
                     E.cy = E.rowoff + E.rows - 1;
-                    if (E.cy > E.numrows) {
+                    if (E.cy > E.numrows)
+                    {
                         E.cy = E.numrows;
                     }
                 }
                 int times = E.rows;
-                while (times--) {
+                while (times--)
+                {
                     editorMoveCursor(c == PAGE_UP ? ARROW_UP : ARROW_DOWN);
                 }
             }

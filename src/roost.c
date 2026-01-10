@@ -1,3 +1,8 @@
+/**
+ * roost.c
+ * Main entry point and initialization logic for the Roost text editor.
+ */
+
 #define _DEFAULT_SOURCE
 #define _BSD_SOURCE
 #define _GNU_SOURCE
@@ -13,7 +18,8 @@
 
 struct editorConfig E;
 
-void initEditor() {
+void initEditor()
+{
     E.cx = 0;
     E.cy = 0;
     E.rx = 0;
@@ -27,24 +33,27 @@ void initEditor() {
     E.syntax = NULL;
     E.statusmsg_time = 0;
 
-    if (getWindowSize(&E.rows, &E.columns) == -1) {
+    if (getWindowSize(&E.rows, &E.columns) == -1)
+    {
         die("getWindowSize");
     }
     E.rows -= 2;
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
     enableRawMode();
     initEditor();
-    if (argc >= 2) {
+    if (argc >= 2)
+    {
         editorOpen(argv[1]);
     }
 
     editorSetStatusMessage(
-                            "HELP: Ctrl-S = save | Ctrl-Q = quit | Ctrl-F = find"
-                          );
+        "HELP: Ctrl-S = save | Ctrl-Q = quit | Ctrl-F = find");
 
-    while (1) {
+    while (1)
+    {
         editorRefreshScreen();
         editorProcessKeypress();
     }

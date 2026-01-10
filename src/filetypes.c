@@ -1,3 +1,8 @@
+/**
+ * filetypes.c
+ * Definitions for supported file types and their syntax highlighting rules.
+ */
+
 #include "data.h"
 #include "filetypes.h"
 

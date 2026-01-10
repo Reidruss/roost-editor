@@ -1,3 +1,8 @@
+/**
+ * input.h
+ * Header file for input handling and cursor movement.
+ */
+
 #ifndef INPUT_H
 #define INPUT_H
 

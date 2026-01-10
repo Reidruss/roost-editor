@@ -1,3 +1,8 @@
+/**
+ * row.c
+ * Row operations including rendering, insertion, and deletion of characters within rows.
+ */
+
 #include <stdlib.h>
 #include <string.h>
 
@@ -5,11 +10,14 @@
 #include "row.h"
 #include "syntax.h"
 
-int editorRowCxToRx(erow *row, int cx) {
+int editorRowCxToRx(erow *row, int cx)
+{
     int rx = 0;
     int j;
-    for (j = 0; j < cx; j++) {
-        if (row->chars[j] == '\t'){
+    for (j = 0; j < cx; j++)
+    {
+        if (row->chars[j] == '\t')
+        {
             rx += (ROOST_TAB_STOP - 1) - (rx % ROOST_TAB_STOP);
         }
         rx++;
@@ -17,41 +25,53 @@ int editorRowCxToRx(erow *row, int cx) {
     return rx;
 }
 
-int editorRowRxToCx(erow *row, int rx) {
+int editorRowRxToCx(erow *row, int rx)
+{
     int cur_rx = 0;
     int cx;
-    for (cx = 0; cx < row->size; cx++) {
-        if (row->chars[cx] == '\t') {
+    for (cx = 0; cx < row->size; cx++)
+    {
+        if (row->chars[cx] == '\t')
+        {
             cur_rx += (ROOST_TAB_STOP - 1) - (cur_rx % ROOST_TAB_STOP);
         }
         cur_rx++;
-        if (cur_rx > rx) {
+        if (cur_rx > rx)
+        {
             return cx;
         }
     }
-  return cx;
+    return cx;
 }
 
-void editorUpdateRow(erow *row) {
+void editorUpdateRow(erow *row)
+{
     int tabs = 0;
     int j;
-    for (j = 0; j < row->size; j++) {
-        if (row->chars[j] == '\t') {
+    for (j = 0; j < row->size; j++)
+    {
+        if (row->chars[j] == '\t')
+        {
             tabs++;
         }
     }
 
     int idx = 0;
     free(row->render);
-    row->render = malloc(row->size + tabs*(ROOST_TAB_STOP - 1) + 1);
+    row->render = malloc(row->size + tabs * (ROOST_TAB_STOP - 1) + 1);
 
-    for (j = 0; j < row->size; j++) {
-        if (row->chars[j] == '\t') {
+    for (j = 0; j < row->size; j++)
+    {
+        if (row->chars[j] == '\t')
+        {
             row->render[idx++] = ' ';
-            while (idx % 8 != 0) {
+            while (idx % 8 != 0)
+            {
                 row->render[idx++] = ' ';
             }
-        } else {
+        }
+        else
+        {
             row->render[idx++] = row->chars[j];
         }
     }
@@ -61,13 +81,16 @@ void editorUpdateRow(erow *row) {
     editorUpdateSyntax(row);
 }
 
-void editorInsertRow(int at, char *s, size_t len) {
-    if (at < 0 || at > E.numrows) {
+void editorInsertRow(int at, char *s, size_t len)
+{
+    if (at < 0 || at > E.numrows)
+    {
         return;
     }
     E.row = realloc(E.row, sizeof(erow) * (E.numrows + 1));
     memmove(&E.row[at + 1], &E.row[at], sizeof(erow) * (E.numrows - at));
-    for (int j = at + 1; j <= E.numrows; j++) {
+    for (int j = at + 1; j <= E.numrows; j++)
+    {
         E.row[j].idx++;
     }
 
@@ -88,26 +111,32 @@ void editorInsertRow(int at, char *s, size_t len) {
     E.dirty++;
 }
 
-void editorFreeRow(erow *row) {
+void editorFreeRow(erow *row)
+{
     free(row->render);
     free(row->chars);
     free(row->hl);
 }
-void editorDelRow(int at) {
-    if (at < 0 || at >= E.numrows) {
+void editorDelRow(int at)
+{
+    if (at < 0 || at >= E.numrows)
+    {
         return;
     }
     editorFreeRow(&E.row[at]);
     memmove(&E.row[at], &E.row[at + 1], sizeof(erow) * (E.numrows - at - 1));
-    for (int j = at; j < E.numrows - 1; j++) {
+    for (int j = at; j < E.numrows - 1; j++)
+    {
         E.row[j].idx--;
     }
     E.numrows--;
     E.dirty++;
 }
 
-void editorRowInsertChar(erow *row, int at, int c) {
-    if (at < 0 || at > row->size) {
+void editorRowInsertChar(erow *row, int at, int c)
+{
+    if (at < 0 || at > row->size)
+    {
         at = row->size;
     }
     row->chars = realloc(row->chars, row->size + 2);
@@ -118,7 +147,8 @@ void editorRowInsertChar(erow *row, int at, int c) {
     E.dirty++;
 }
 
-void editorRowAppendString(erow *row, char *s, size_t len) {
+void editorRowAppendString(erow *row, char *s, size_t len)
+{
     row->chars = realloc(row->chars, row->size + len + 1);
     memcpy(&row->chars[row->size], s, len);
     row->size += len;
@@ -127,8 +157,10 @@ void editorRowAppendString(erow *row, char *s, size_t len) {
     E.dirty++;
 }
 
-void editorRowDelChar(erow *row, int at) {
-    if (at < 0 || at >= row->size) {
+void editorRowDelChar(erow *row, int at)
+{
+    if (at < 0 || at >= row->size)
+    {
         return;
     }
     memmove(&row->chars[at], &row->chars[at + 1], row->size - at);

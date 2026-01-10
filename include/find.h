@@ -1,3 +1,8 @@
+/**
+ * find.h
+ * Header file for search functionality.
+ */
+
 #ifndef FIND_H
 #define FIND_H
 
