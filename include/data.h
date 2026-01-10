@@ -1,3 +1,8 @@
+/**
+ * data.h
+ * Data structures and constants used throughout the editor.
+ */
+
 #ifndef DATA_H
 #define DATA_H
 
@@ -6,7 +11,8 @@
 
 #define CTRL_KEY(k) ((k) & 0x1f)
 
-enum editorKey {
+enum editorKey
+{
     BACKSPACE = 127,
     ARROW_LEFT = 1000,
     ARROW_RIGHT,
@@ -19,7 +25,8 @@ enum editorKey {
     PAGE_DOWN
 };
 
-enum editorHighlight {
+enum editorHighlight
+{
     HL_NORMAL = 0,
     HL_COMMENT,
     HL_MLCOMMENT,
@@ -39,7 +46,8 @@ enum editorHighlight {
 
 /* data */
 
-struct editorSyntax {
+struct editorSyntax
+{
     char *filetype;
     char **filematch;
     char **keywords;
@@ -49,7 +57,8 @@ struct editorSyntax {
     int flags;
 };
 
-typedef struct erow {
+typedef struct erow
+{
     int idx;
     int size;
     int rsize;
@@ -59,7 +68,8 @@ typedef struct erow {
     int hl_open_comment;
 } erow;
 
-struct editorConfig {
+struct editorConfig
+{
     int cx, cy;
     int rx;
     int rowoff;

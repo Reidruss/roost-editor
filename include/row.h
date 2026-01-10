@@ -1,3 +1,8 @@
+/**
+ * row.h
+ * Header file for row operations.
+ */
+
 #ifndef ROW_H
 #define ROW_H
 

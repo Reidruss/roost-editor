@@ -1,3 +1,8 @@
+/**
+ * filetypes.h
+ * Header file for file type definitions and syntax highlighting rules.
+ */
+
 #ifndef FILETYPES_H
 #define FILETYPES_H
 

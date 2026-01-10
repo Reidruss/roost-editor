@@ -1,3 +1,8 @@
+/**
+ * output.h
+ * Header file for output and screen drawing operations.
+ */
+
 #ifndef OUTPUT_H
 #define OUTPUT_H
 
